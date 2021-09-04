@@ -3,8 +3,10 @@ clear
 npm init -y
 echo 'node_modules'>>.gitignore
 echo '.env'>>.gitignore
-touch .env
-touch index.js
+echo "Welcome to my Project">>readme.md
+echo "PORT=3000
+DB_URL='mongodb://localhost:27017'
+DB_NAME='databaseName'">>.env
 echo "const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -25,39 +27,68 @@ npm i express express-rescue express-validations body-parser mongodb dotenv
 npm i nodemon -D
 mkdir docs models services controllers helpers validations middlewares routes config
 cd models
-touch connection.js
-echo "const { MongoClient } = require('mongodb');
+echo "const mongodb = require('mongodb').MongoClient;
+require('dotenv').config();
+const { DB_URL, DB_NAME } = process.env;
 
 const OPTIONS = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }
 
-const MONGO_DB_URL = 'mongodb://127.0.0.1:27017';
-
-let db = null;
-
-const connection = () => {
-    return db
-    ? Promise.resolve(db)
-    : MongoClient.connect(MONGO_DB_URL, OPTIONS)
-    .then((conn) => {
-    db = conn.db('model_example');
-    return db;
-    })
-};
-
-module.exports = connection;">>connection.js
+module.exports = () =>
+    mongodb.connect(DB_URL, OPTIONS)
+    .then((connection) => connection.db(DB_NAME))
+    .catch((err) => {
+        console.log(err);
+        process.exit(1)
+    })">>connection.js
 touch model.js
 cd ..
 cd services
-touch serviceName.js
+echo "const Author = require('../models/Author');
+const validate = require('../validations/validations')
+
+const getAll = async () => Author.getAll();
+
+const findById = async (id) => {
+  const author = await Author.findById(id);
+  if (!author) {
+    return {
+      error: {
+        code: 'notFound',
+        message: `Não foi possível encontrar um autor com o id ${id}`,
+      },
+    };
+  }
+  return author;
+};
+
+  const create = async (firstName, middleName, lastName) => {
+    const existingAuthor = await Author.findByName(firstName, middleName, lastName);
+  
+    if (existingAuthor) {
+      return {
+        error: {
+          code: 'alreadyExists',
+          message: 'Um autor já existe com esse nome completo',
+        },
+      };
+    }
+    const created = await validate(firstName, middleName, lastName)
+    return Author.create(created);
+  };
+
+module.exports = {
+  getAll,
+  findById,
+  create,
+};">>serviceName.js
 cd ..
 cd controllers
 touch controllerName.js
 cd ..
 cd validations
-touch validations.js
 echo "var expressValidations = require('express-validations')
 
 const {
@@ -106,7 +137,6 @@ const validate = (params) => {
 module.exports = validate;">>validations.js
 cd ..
 cd helpers
-touch helpers.js
 echo "const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
 const HTTP_NO_BODY_STATUS = 422;
@@ -122,7 +152,6 @@ module.exports = {
 }">> helpers.js
 cd ..
 cd routes
-touch router.js
 echo "const express = require('express');
 const router = express.Router();
 
@@ -146,7 +175,6 @@ cd middlewares
 touch middlewareName.js
 cd ..
 cd docs
-touch docs.md
 echo "# Express-Validations:
 ## Complete List of Validation Methods
 * isValidEmail(email)
@@ -162,6 +190,6 @@ echo "# Express-Validations:
 * containsNotNumber(nonNumericString)
 * containsNotAlphabets(nonAlphabeticString)
 * isLength(string, minLength, maxLength)
-* isValidURL(url)"
+* isValidURL(url)">>docs.md
 clear
 echo "boilerplate terminado! by Luan da Silva Ramalho | https://github.com/luanlsr"

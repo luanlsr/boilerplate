@@ -10,7 +10,7 @@
 
 ## Installation
 
-basta copiar o arquivo boilerplate.sh para o repositório do projeto e executar no terminal o seguinte comando:
+Basta copiar o arquivo boilerplate.sh para o repositório do projeto e executar no terminal o seguinte comando:
 
 ```sh
 ./boilerplate.sh
